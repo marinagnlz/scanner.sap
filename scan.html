@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Escáner QR</title>
+<script src="https://unpkg.com/html5-qrcode"></script>
+</head>
+<body>
+<h3>Escanea un código QR</h3>
+<div id="reader" style="width: 400px;"></div>
+<script>
+   const html5QrCode = new Html5Qrcode("reader");
+   html5QrCode.start(
+     { facingMode: "environment" }, // cámara trasera
+     {
+       fps: 10,
+       qrbox: 250
+     },
+     (decodedText, decodedResult) => {
+       // Enviar solo el texto (no el objeto)
+       window.parent.postMessage(decodedText, "*");
+       // Detener el escaneo y cerrar la ventana
+       html5QrCode.stop().then(() => {
+         window.close();
+       }).catch(err => {
+         console.error("Error al detener el escáner", err);
+         window.close();
+       });
+     },
+     (errorMessage) => {
+       // Puedes loguear si quieres los errores mientras escanea
+       // console.warn("Escaneo fallido:", errorMessage);
+     }
+   ).catch(err => {
+     console.error("No se pudo iniciar el escáner:", err);
+   });
+</script>
+</body>
+</html>
