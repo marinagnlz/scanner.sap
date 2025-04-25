@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Escáner de Código de Barras</title>
+<script src="https://unpkg.com/@ericblade/quagga2@1.2.6/dist/quagga.min.js"></script>
+<style>
+   #scanner-container {
+     width: 100%;
+     max-width: 600px;
+     margin: auto;
+     padding-top: 20px;
+   }
+   video {
+     width: 100%;
+     height: auto;
+   }
+</style>
+</head>
+<body>
+<h2 style="text-align:center;">Escanea un código de barras</h2>
+<div id="scanner-container"></div>
+<script>
+   Quagga.init({
+     inputStream: {
+       type: "LiveStream",
+       target: document.getElementById("scanner-container"),
+       constraints: {
+         facingMode: "environment" // Usa la cámara trasera si está disponible
+       }
+     },
+     decoder: {
+       readers: ["code_128_reader", "ean_reader", "ean_8_reader", "code_39_reader"]
+     },
+     locate: true
+   }, function(err) {
+     if (err) {
+       console.error("Error al iniciar Quagga:", err);
+       return;
+     }
+     Quagga.start();
+   });
+   Quagga.onDetected(function(result) {
+     const code = result.codeResult.code;
+     console.log("Código de barras detectado:", code);
+     // Enviar el código al padre (ej. SAP Screen Personas)
+     window.parent.postMessage({ text: code }, "*");
+     // Parar el escáner y cerrar la ventana
+     Quagga.stop();
+     setTimeout(() => window.close(), 500);
+   });
+</script>
+</body>
+</html>
